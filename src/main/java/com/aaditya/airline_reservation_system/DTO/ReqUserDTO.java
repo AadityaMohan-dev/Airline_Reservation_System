@@ -16,7 +16,5 @@ public class ReqUserDTO {
     @NonNull
     private String password;
     @NonNull
-    private String rePassword;
-    @NonNull
     private String Phone;
 }

@@ -14,7 +14,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public class FlightServiceTest {
         reqFlightDTO.setFlightNumber("FL123");
         reqFlightDTO.setDestinationAirport("Destination");
         reqFlightDTO.setAirportName("Airport");
-        reqFlightDTO.setDepartureTime(String.valueOf(LocalTime.of(10, 0)));
+        reqFlightDTO.setDepartureTime("10:00:00");
 
         Flight flight = new Flight();
         flight.setFlight_id(1L);
@@ -72,7 +71,7 @@ public class FlightServiceTest {
         flight1.setDestinationAirport("Destination1");
         flight1.setAirportName("Airport1");
         flight1.setDate(LocalDate.now());
-        flight1.setDepartureTime(String.valueOf(LocalTime.of(10, 0)));
+        flight1.setDepartureTime("10:00:00");
 
         Flight flight2 = new Flight();
         flight2.setFlight_id(2L);
@@ -81,7 +80,7 @@ public class FlightServiceTest {
         flight2.setDestinationAirport("Destination2");
         flight2.setAirportName("Airport2");
         flight2.setDate(LocalDate.now());
-        flight2.setDepartureTime(String.valueOf(LocalTime.of(12, 0)));
+        flight2.setDepartureTime("10:00:00");
 
         List<Flight> flights = Arrays.asList(flight1, flight2);
 
@@ -102,7 +101,7 @@ public class FlightServiceTest {
         flight.setDestinationAirport("Destination");
         flight.setAirportName("Airport");
         flight.setDate(LocalDate.now());
-        flight.setDepartureTime(String.valueOf(LocalTime.of(10, 0)));
+        flight.setDepartureTime("10:00:00");
 
         when(flightRepository.findById(1L)).thenReturn(Optional.of(flight));
 
@@ -127,7 +126,7 @@ public class FlightServiceTest {
         reqFlightDTO.setFlightNumber("FL789");
         reqFlightDTO.setDestinationAirport("NewDestination");
         reqFlightDTO.setAirportName("NewAirport");
-        reqFlightDTO.setDepartureTime(String.valueOf(LocalTime.of(15, 0)));
+        reqFlightDTO.setDepartureTime("10:00:00");
 
         Flight existingFlight = new Flight();
         existingFlight.setFlight_id(1L);
@@ -136,7 +135,7 @@ public class FlightServiceTest {
         existingFlight.setDestinationAirport("OldDestination");
         existingFlight.setAirportName("OldAirport");
         existingFlight.setDate(LocalDate.now());
-        existingFlight.setDepartureTime(String.valueOf(LocalTime.of(10, 0)));
+        existingFlight.setDepartureTime("10:00:00");
 
         Flight updatedFlight = new Flight();
         updatedFlight.setFlight_id(1L);

@@ -62,7 +62,7 @@ public class TicketServiceTest {
         Flight flight = new Flight();
         flight.setAirlineName("Airline");
         flight.setAirportName("Airport");
-        flight.setDepartureTime(LocalTime.of(10, 30));
+        flight.setDepartureTime("10:00:00");
         flight.setDestinationAirport("Destination");
         flight.setFlightNumber("FL123");
 
@@ -133,7 +133,7 @@ public class TicketServiceTest {
         ticket.setFlight(new Flight());
         ticket.getFlight().setAirlineName("Airline");
         ticket.getFlight().setAirportName("Airport");
-        ticket.getFlight().setDepartureTime(LocalTime.of(10, 30));
+        ticket.getFlight().setDepartureTime("10:00:00");
         ticket.getFlight().setDestinationAirport("Destination");
         ticket.getFlight().setFlightNumber("FL123");
         ticket.setPassenger(new Passenger());
@@ -177,7 +177,7 @@ public class TicketServiceTest {
         ticket.setFlight(new Flight());
         ticket.getFlight().setAirlineName("Airline");
         ticket.getFlight().setAirportName("Airport");
-        ticket.getFlight().setDepartureTime(LocalTime.of(10, 30));
+        ticket.getFlight().setDepartureTime("10:00:00");
         ticket.getFlight().setDestinationAirport("Destination");
         ticket.getFlight().setFlightNumber("FL123");
         ticket.setPassenger(new Passenger());

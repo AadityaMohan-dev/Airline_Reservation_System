@@ -26,11 +26,7 @@ public class AdminService {
         try{
             User user = new User();
             user.setUsername(reqUserDTO.getUsername());
-            if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
-                user.setPassword(reqUserDTO.getPassword());
-            }else {
-                throw new IllegalArgumentException("Passwords do not match");
-            }
+
             user.setRole(RoleEnum.ADMIN);
             userRepository.save(user);
             Admin admin = new Admin();
@@ -106,11 +102,6 @@ public class AdminService {
         user.setId(admin.getUser().getId());
         user.setUsername(reqUserDTO.getUsername());
         user.setRole(RoleEnum.ADMIN);
-        if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
-            user.setPassword(reqUserDTO.getPassword());
-        }else {
-            throw new IllegalArgumentException("Passwords do not match");
-        }
 
         Admin updatedAdmin = new Admin();
         updatedAdmin.setAdmin_id(id);

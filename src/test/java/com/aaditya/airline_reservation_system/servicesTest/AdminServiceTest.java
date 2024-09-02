@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class AdminServiceTest {
+
+    @InjectMocks
+    private AdminService adminService;
 
     @Mock
     private AdminRepository adminRepository;
@@ -31,100 +33,103 @@ public class AdminServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @InjectMocks
-    private AdminService adminService;
-
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testAddNewAdmin_Success() {
+    public void testAddNewAdmin_Success() {
         ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("admin");
-        reqUserDTO.setPassword("password");
-        reqUserDTO.setRePassword("password");
+        reqUserDTO.setUsername("admin_user");
         reqUserDTO.setEmail("admin@example.com");
 
         User user = new User();
-        user.setUsername(reqUserDTO.getUsername());
-        user.setPassword(reqUserDTO.getPassword());
+        user.setId(1L);
+        user.setUsername("admin_user");
         user.setRole(RoleEnum.ADMIN);
 
         Admin admin = new Admin();
         admin.setAdmin_id(1L);
-        admin.setEmail(reqUserDTO.getEmail());
+        admin.setEmail("admin@example.com");
         admin.setUser(user);
 
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(adminRepository.save(any(Admin.class))).thenReturn(admin);
 
         ResponseDTO responseDTO = adminService.addNewAdmin(reqUserDTO);
+
         assertNotNull(responseDTO);
         assertEquals("New Admin Added Successfully.", responseDTO.getMessage());
     }
 
     @Test
-    void testAddNewAdmin_PasswordMismatch() {
-        ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("admin");
-        reqUserDTO.setPassword("password");
-        reqUserDTO.setRePassword("differentpassword");
-        reqUserDTO.setEmail("admin@example.com");
+    public void testGetAllAdminDetails_Success() throws Exception {
+        Admin admin1 = new Admin();
+        admin1.setAdmin_id(1L);
+        admin1.setEmail("admin1@example.com");
+        User user1 = new User();
+        user1.setUsername("admin_user1");
+        admin1.setUser(user1);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            adminService.addNewAdmin(reqUserDTO);
-        });
-        assertEquals("Passwords do not match", exception.getMessage());
+        Admin admin2 = new Admin();
+        admin2.setAdmin_id(2L);
+        admin2.setEmail("admin2@example.com");
+        User user2 = new User();
+        user2.setUsername("admin_user2");
+        admin2.setUser(user2);
+
+        List<Admin> admins = List.of(admin1, admin2);
+
+        when(adminRepository.findAll()).thenReturn(admins);
+
+        List<ResAdminDTO> responseList = adminService.getAllAdminDetails();
+
+        assertNotNull(responseList);
+        assertEquals(2, responseList.size());
+        assertEquals("admin_user1", responseList.get(0).getUsername());
+        assertEquals("admin_user2", responseList.get(1).getUsername());
     }
 
     @Test
-    void testGetAllAdminDetails_Success() throws Exception {
+    public void testGetAllAdminDetails_Empty() throws Exception {
+        when(adminRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<ResAdminDTO> responseList = adminService.getAllAdminDetails();
+
+        assertNotNull(responseList);
+        assertTrue(responseList.isEmpty());
+    }
+
+    @Test
+    public void testGetAdminById_Found() {
         Admin admin = new Admin();
         admin.setAdmin_id(1L);
         admin.setEmail("admin@example.com");
         User user = new User();
-        user.setUsername("admin");
-        admin.setUser(user);
-
-        List<Admin> adminList = new ArrayList<>();
-        adminList.add(admin);
-
-        when(adminRepository.findAll()).thenReturn(adminList);
-
-        List<ResAdminDTO> adminDTOList = adminService.getAllAdminDetails();
-        assertNotNull(adminDTOList);
-        assertEquals(1, adminDTOList.size());
-        assertEquals("admin", adminDTOList.get(0).getUsername());
-    }
-
-    @Test
-    void testGetAdminById_Found() {
-        Admin admin = new Admin();
-        admin.setAdmin_id(1L);
-        admin.setEmail("admin@example.com");
-        User user = new User();
-        user.setUsername("admin");
+        user.setUsername("admin_user");
         admin.setUser(user);
 
         when(adminRepository.findById(1L)).thenReturn(Optional.of(admin));
 
-        ResAdminDTO adminDTO = adminService.getAdminById(1L);
-        assertNotNull(adminDTO);
-        assertEquals("admin", adminDTO.getUsername());
+        ResAdminDTO responseDTO = adminService.getAdminById(1L);
+
+        assertNotNull(responseDTO);
+        assertEquals("admin_user", responseDTO.getUsername());
+        assertEquals("admin@example.com", responseDTO.getEmail());
     }
 
     @Test
-    void testGetAdminById_NotFound() {
+    public void testGetAdminById_NotFound() {
         when(adminRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResAdminDTO adminDTO = adminService.getAdminById(1L);
-        assertNull(adminDTO);
+        ResAdminDTO responseDTO = adminService.getAdminById(1L);
+
+        assertNull(responseDTO);
     }
 
     @Test
-    void testDeleteAdminById_Success() {
+    public void testDeleteAdminById_Success() {
         Admin admin = new Admin();
         admin.setAdmin_id(1L);
         User user = new User();
@@ -134,70 +139,73 @@ public class AdminServiceTest {
         when(adminRepository.findById(1L)).thenReturn(Optional.of(admin));
 
         ResponseDTO responseDTO = adminService.deleteAdminById(1L);
+
         assertNotNull(responseDTO);
         assertEquals("User Deleted Successfully", responseDTO.getMessage());
-
         verify(adminRepository, times(1)).deleteById(1L);
         verify(userRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    void testDeleteAdminById_NotFound() {
+    public void testDeleteAdminById_NotFound() {
         when(adminRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResponseDTO responseDTO = adminService.deleteAdminById(1L);
+
         assertNotNull(responseDTO);
         assertEquals("User/Admin with id : 1 Not Found", responseDTO.getMessage());
+        verify(adminRepository, never()).deleteById(anyLong());
+        verify(userRepository, never()).deleteById(anyLong());
     }
 
     @Test
-    void testUpdateAdminDetails_Success() {
+    public void testUpdateAdminDetails_Success() {
         ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("updatedAdmin");
-        reqUserDTO.setPassword("password");
-        reqUserDTO.setRePassword("password");
-        reqUserDTO.setEmail("updated@example.com");
+        reqUserDTO.setUsername("updated_admin_user");
+        reqUserDTO.setEmail("updated_admin@example.com");
 
         Admin existingAdmin = new Admin();
         existingAdmin.setAdmin_id(1L);
+        existingAdmin.setEmail("admin@example.com");
         User existingUser = new User();
         existingUser.setId(1L);
+        existingUser.setUsername("admin_user");
+        existingUser.setRole(RoleEnum.ADMIN);
         existingAdmin.setUser(existingUser);
-        existingAdmin.setEmail("old@example.com");
-
-        when(adminRepository.findById(1L)).thenReturn(Optional.of(existingAdmin));
 
         User updatedUser = new User();
         updatedUser.setId(1L);
-        updatedUser.setUsername(reqUserDTO.getUsername());
-        updatedUser.setPassword(reqUserDTO.getPassword());
+        updatedUser.setUsername("updated_admin_user");
         updatedUser.setRole(RoleEnum.ADMIN);
 
         Admin updatedAdmin = new Admin();
         updatedAdmin.setAdmin_id(1L);
+        updatedAdmin.setEmail("updated_admin@example.com");
         updatedAdmin.setUser(updatedUser);
-        updatedAdmin.setEmail(reqUserDTO.getEmail());
 
+        when(adminRepository.findById(1L)).thenReturn(Optional.of(existingAdmin));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
         when(adminRepository.save(any(Admin.class))).thenReturn(updatedAdmin);
 
-        ResAdminDTO adminDTO = adminService.updateAdminDetails(1L, reqUserDTO);
-        assertNotNull(adminDTO);
-        assertEquals("updatedAdmin", adminDTO.getUsername());
-        assertEquals("updated@example.com", adminDTO.getEmail());
+        ResAdminDTO responseDTO = adminService.updateAdminDetails(1L, reqUserDTO);
+
+        assertNotNull(responseDTO);
+        assertEquals("updated_admin_user", responseDTO.getUsername());
+        assertEquals("updated_admin@example.com", responseDTO.getEmail());
     }
 
     @Test
-    void testUpdateAdminDetails_AdminNotFound() {
+    public void testUpdateAdminDetails_NotFound() {
         ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("updatedAdmin");
-        reqUserDTO.setPassword("password");
-        reqUserDTO.setRePassword("password");
-        reqUserDTO.setEmail("updated@example.com");
+        reqUserDTO.setUsername("updated_admin_user");
+        reqUserDTO.setEmail("updated_admin@example.com");
 
         when(adminRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResAdminDTO adminDTO = adminService.updateAdminDetails(1L, reqUserDTO);
-        assertNull(adminDTO);
+        ResAdminDTO responseDTO = adminService.updateAdminDetails(1L, reqUserDTO);
+
+        assertNull(responseDTO);
+        verify(userRepository, never()).save(any(User.class));
+        verify(adminRepository, never()).save(any(Admin.class));
     }
 }

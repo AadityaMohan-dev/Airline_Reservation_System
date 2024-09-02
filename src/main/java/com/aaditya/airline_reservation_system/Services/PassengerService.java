@@ -26,11 +26,7 @@ public class PassengerService {
         try{
             User user = new User();
             user.setUsername(reqUserDTO.getUsername());
-            if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
-                user.setPassword(reqUserDTO.getPassword());
-            }else {
-                throw new IllegalArgumentException("Passwords do not match");
-            }
+
             user.setRole(RoleEnum.PASSENGER);
             userRepository.save(user);
             Passenger passenger = new Passenger();
@@ -106,11 +102,7 @@ public class PassengerService {
             user.setId(passenger.getUser().getId());
             user.setUsername(reqUserDTO.getUsername());
             user.setRole(passenger.getUser().getRole());
-            if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
-                user.setPassword(reqUserDTO.getPassword());
-            }else {
-                throw new IllegalArgumentException("Passwords do not match");
-            }
+
             userRepository.save(user);
             Passenger updatedPassenger = new Passenger();
             updatedPassenger.setPassenger_id(passenger.getPassenger_id());
