@@ -5,7 +5,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalTime;
 
 @Component
 @Getter
@@ -16,7 +15,7 @@ public class ReqFlightDTO {
     @NonNull
     private String flightNumber;
     @NonNull
-    private LocalTime DepartureTime;
+    private String DepartureTime;
     @NonNull
     private String DestinationAirport;
     @NonNull

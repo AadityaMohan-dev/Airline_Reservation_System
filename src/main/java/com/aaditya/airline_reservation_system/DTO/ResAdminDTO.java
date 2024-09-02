@@ -2,7 +2,7 @@ package com.aaditya.airline_reservation_system.DTO;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.lang.NonNull;
+
 import org.springframework.stereotype.Component;
 
 @Component

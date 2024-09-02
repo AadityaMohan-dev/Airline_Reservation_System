@@ -42,10 +42,10 @@ public class TicketService {
         try{
             Optional<Passenger> passengerOptional = passengerRepository.findById(passenger_id);
             Optional<Flight> flightOptional = flightRepository.findById(flight_id);
-            if(passengerOptional.isPresent() || flightOptional.isEmpty()) return null;
+            if(passengerOptional.isEmpty() || flightOptional.isEmpty()) return null;
 
             Passenger passenger = passengerOptional.get();
-            Flight flight =flightOptional.get();
+            Flight flight = flightOptional.get();
 
             Ticket ticket = new Ticket();
             ticket.setTicket_number(createTicketNumber(passenger));
@@ -59,13 +59,13 @@ public class TicketService {
             ticketDTO.setAirline_name(ticket.getFlight().getAirlineName());
             ticketDTO.setDate(LocalDate.now());
             ticketDTO.setAirport_name(ticket.getFlight().getAirportName());
-            ticketDTO.setDeparture_time(ticket.getFlight().getDepartureTime());
+            ticketDTO.setDeparture_time(LocalTime.parse(ticket.getFlight().getDepartureTime()));
             ticketDTO.setDestination_airport(ticket.getFlight().getDestinationAirport());
             ticketDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
 
             return  ticketDTO;
         }catch (Exception e){
-            throw new RuntimeException("something went wrong");
+            throw new RuntimeException("something went wrong"+ e.getStackTrace()+ e);
         }
     }
 
@@ -84,10 +84,10 @@ public class TicketService {
     }
 
     public List<ResTicketDTO> getAllTickets() {
+        List<Ticket> ticketList = ticketRepository.findAll();
+        if (ticketList.isEmpty()) return null;
+        List<ResTicketDTO> resTicketDTOList = new ArrayList<>();
         try{
-            List<Ticket> ticketList = ticketRepository.findAll();
-            if (ticketList.isEmpty()) return null;
-            List<ResTicketDTO> resTicketDTOList = new ArrayList<>();
             for(Ticket ticket : ticketList){
                 ResTicketDTO ticketDTO = new ResTicketDTO();
                 ticketDTO.setTicket_number(ticket.getTicket_number());
@@ -103,7 +103,7 @@ public class TicketService {
             }
             return resTicketDTOList;
         }catch (Exception e){
-            throw new RuntimeException("something went wrong");
+            throw new RuntimeException("something went wrong" + e.getStackTrace()+ e);
         }
     }
 

@@ -51,7 +51,7 @@ public class FlightController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO> deleteFlight(@PathVariable Long id) {
         ResponseDTO response = flightService.deleteFlight(id);
-        if(response == null) return ResponseEntity.notFound().build();
+        if(response == null) return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("Flight with id : "+id+" Not Found!!"));
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(response);
     }
 }

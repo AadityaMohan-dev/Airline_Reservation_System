@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +34,12 @@ public class FlightService {
             flightRepository.save(flight);
 
             ResFlightDTO flightDTO = new ResFlightDTO();
+            flightDTO.setId(flight.getFlight_id());
             flightDTO.setFlightNumber(flight.getFlightNumber());
             flightDTO.setDate(flight.getDate());
             flightDTO.setAirlineName(flight.getAirlineName());
             flightDTO.setAirportName(flight.getAirportName());
-            flightDTO.setDepartureTime(flight.getDepartureTime().toString());
+            flightDTO.setDepartureTime(flight.getDepartureTime());
             flightDTO.setDestinationAirport(flight.getDestinationAirport());
             flightDTO.setDate(flight.getDate());
             return flightDTO;
@@ -52,30 +54,39 @@ public class FlightService {
             return null;
         }
         List<ResFlightDTO> flightList = new ArrayList<>();
-        for (Flight flight : flights){
-            ResFlightDTO flightDTO = new ResFlightDTO();
-            flightDTO.setFlightNumber(flight.getFlightNumber());
-            flightDTO.setDate(flight.getDate());
-            flightDTO.setAirlineName(flight.getAirlineName());
-            flightDTO.setAirportName(flight.getAirportName());
-            flightDTO.setDestinationAirport(flight.getDestinationAirport());
-
-            flightList.add(flightDTO);
-        }
+       try{
+           for (Flight flight : flights){
+               ResFlightDTO flightDTO = new ResFlightDTO();
+               flightDTO.setId(flight.getFlight_id());
+               flightDTO.setFlightNumber(flight.getFlightNumber());
+               flightDTO.setDate(flight.getDate());
+               flightDTO.setAirlineName(flight.getAirlineName());
+               flightDTO.setAirportName(flight.getAirportName());
+               flightDTO.setDepartureTime(flight.getDepartureTime());
+               flightDTO.setDestinationAirport(flight.getDestinationAirport());
+               flightDTO.setDate(flight.getDate());
+               flightList.add(flightDTO);
+           }
+       }catch(Exception e){
+           throw new RuntimeException("something went wrong"+e.getStackTrace()+e);
+       }
         return flightList;
     }
 
     public ResFlightDTO getFlightById(Long id) {
         Optional<Flight> optionalFlight = flightRepository.findById(id);
         if(optionalFlight.isEmpty()) return  null;
+        Flight flight = optionalFlight.get();
        try {
-           Flight flight = optionalFlight.get();
            ResFlightDTO flightDTO = new ResFlightDTO();
+           flightDTO.setId(flight.getFlight_id());
            flightDTO.setFlightNumber(flight.getFlightNumber());
            flightDTO.setDate(flight.getDate());
            flightDTO.setAirlineName(flight.getAirlineName());
            flightDTO.setAirportName(flight.getAirportName());
+           flightDTO.setDepartureTime(flight.getDepartureTime());
            flightDTO.setDestinationAirport(flight.getDestinationAirport());
+           flightDTO.setDate(flight.getDate());
            return flightDTO;
        }catch(Exception e) { throw new RuntimeException("something went wrong" + e.getStackTrace() + e);}
     }
@@ -86,7 +97,7 @@ public class FlightService {
         try{
 
                 Flight flight = existingFlightOpt.get();
-
+                flight.setFlight_id(id);
                 flight.setFlightNumber(reqFlightDTO.getFlightNumber());
                 flight.setDestinationAirport(reqFlightDTO.getDestinationAirport());
                 flight.setAirportName(reqFlightDTO.getAirportName());
@@ -95,13 +106,13 @@ public class FlightService {
 
                 ResFlightDTO flightDTO = new ResFlightDTO();
                 flightDTO.setFlightNumber(flight.getFlightNumber());
+                flightDTO.setId(flight.getFlight_id());
                 flightDTO.setDate(flight.getDate());
                 flightDTO.setAirlineName(flight.getAirlineName());
                 flightDTO.setAirportName(flight.getAirportName());
-                flightDTO.setDepartureTime(reqFlightDTO.getDepartureTime().toString());
                 flightDTO.setDestinationAirport(flight.getDestinationAirport());
                 flightDTO.setDate(flight.getDate());
-                flightDTO.setDeparture_time(flight.getDepartureTime());
+                flightDTO.setDepartureTime(flight.getDepartureTime());
                 return flightDTO;
 
         }
