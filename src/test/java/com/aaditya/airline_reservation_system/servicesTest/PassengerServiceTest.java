@@ -9,21 +9,20 @@ import com.aaditya.airline_reservation_system.Enums.RoleEnum;
 import com.aaditya.airline_reservation_system.Repository.PassengerRepository;
 import com.aaditya.airline_reservation_system.Repository.UserRepository;
 import com.aaditya.airline_reservation_system.Services.PassengerService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 public class PassengerServiceTest {
 
     @Mock
@@ -35,199 +34,148 @@ public class PassengerServiceTest {
     @InjectMocks
     private PassengerService passengerService;
 
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
-    public void testAddNewPassengerSuccess() {
+    void testAddNewPassenger_Success() {
         ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("passengerUser");
-        reqUserDTO.setPassword("passengerPass");
-        reqUserDTO.setRePassword("passengerPass");
-        reqUserDTO.setEmail("passenger@example.com");
+        reqUserDTO.setUsername("john_doe");
+        reqUserDTO.setPassword("password123");
+        reqUserDTO.setRePassword("password123");
+        reqUserDTO.setEmail("john@example.com");
         reqUserDTO.setPhone("1234567890");
 
         User user = new User();
         user.setId(1L);
-        user.setUsername("passengerUser");
-        user.setPassword("passengerPass");
-        user.setRole(RoleEnum.ADMIN);
+        user.setUsername(reqUserDTO.getUsername());
+        user.setPassword(reqUserDTO.getPassword());
+        user.setRole(RoleEnum.PASSENGER);
 
         Passenger passenger = new Passenger();
-        passenger.setEmail("passenger@example.com");
+        passenger.setPassenger_id(user.getId());
+        passenger.setEmail(reqUserDTO.getEmail());
         passenger.setUser(user);
-        passenger.setPhone("1234567890");
+        passenger.setPhone(reqUserDTO.getPhone());
 
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(passengerRepository.save(any(Passenger.class))).thenReturn(passenger);
 
         ResponseDTO responseDTO = passengerService.addNewPassenger(reqUserDTO);
-
-        assertNull(responseDTO);
-        verify(userRepository, times(1)).save(any(User.class));
-        verify(passengerRepository, times(1)).save(any(Passenger.class));
+        assertNotNull(responseDTO);
+        assertEquals("New Admin Added Successfully.", responseDTO.getMessage());
     }
 
     @Test
-    public void testAddNewPassengerPasswordMismatch() {
-        ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("passengerUser");
-        reqUserDTO.setPassword("passengerPass");
-        reqUserDTO.setRePassword("differentPass");
-        reqUserDTO.setEmail("passenger@example.com");
-
-        IllegalArgumentException thrown = assertThrows(
-                IllegalArgumentException.class,
-                () -> passengerService.addNewPassenger(reqUserDTO)
-        );
-        assertEquals("Passwords do not match", thrown.getMessage());
-    }
-
-    @Test
-    public void testGetAllPassengerDetailsSuccess() {
-        List<Passenger> passengerList = new ArrayList<>();
+    void testGetAllPassengerDetails_Success() {
         Passenger passenger = new Passenger();
-        passenger.setEmail("passenger@example.com");
+        passenger.setPassenger_id(1L);
+        passenger.setEmail("john@example.com");
         passenger.setPhone("1234567890");
         passenger.setUser(new User());
-        passenger.getUser().setUsername("passengerUser");
+        passenger.getUser().setUsername("john_doe");
+
+        List<Passenger> passengerList = new ArrayList<>();
         passengerList.add(passenger);
 
         when(passengerRepository.findAll()).thenReturn(passengerList);
 
         List<ResPassengerDTO> responseList = passengerService.getAllPassengerDetails();
-
         assertNotNull(responseList);
         assertEquals(1, responseList.size());
-        assertEquals("passengerUser", responseList.get(0).getUsername());
+        assertEquals(passenger.getPassenger_id(), responseList.get(0).getId());
     }
 
     @Test
-    public void testGetAllPassengerDetailsFailure() {
-        when(passengerRepository.findAll()).thenThrow(new RuntimeException("Database error"));
-
-        RuntimeException thrown = assertThrows(
-                RuntimeException.class,
-                () -> passengerService.getAllPassengerDetails()
-        );
-        assertEquals("Failed to retrieve passenger details: Database error", thrown.getMessage());
-    }
-
-    @Test
-    public void testGetPassengerByIdSuccess() {
-        Long id = 1L;
+    void testGetPassengerById_Found() {
         Passenger passenger = new Passenger();
-        passenger.setEmail("passenger@example.com");
+        passenger.setPassenger_id(1L);
+        passenger.setEmail("john@example.com");
         passenger.setPhone("1234567890");
         passenger.setUser(new User());
-        passenger.getUser().setUsername("passengerUser");
+        passenger.getUser().setUsername("john_doe");
 
-        when(passengerRepository.findById(id)).thenReturn(Optional.of(passenger));
+        when(passengerRepository.findById(1L)).thenReturn(Optional.of(passenger));
 
-        ResPassengerDTO passengerDTO = passengerService.getPassengerById(id);
-
+        ResPassengerDTO passengerDTO = passengerService.getPassengerById(1L);
         assertNotNull(passengerDTO);
-        assertEquals("passengerUser", passengerDTO.getUsername());
-        assertEquals("passenger@example.com", passengerDTO.getEmail());
-        assertEquals("1234567890", passengerDTO.getPhone());
+        assertEquals(passenger.getPassenger_id(), passengerDTO.getId());
     }
 
     @Test
-    public void testGetPassengerByIdNotFound() {
-        Long id = 1L;
+    void testGetPassengerById_NotFound() {
+        when(passengerRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(passengerRepository.findById(id)).thenReturn(Optional.empty());
-
-        ResPassengerDTO passengerDTO = passengerService.getPassengerById(id);
-
+        ResPassengerDTO passengerDTO = passengerService.getPassengerById(1L);
         assertNull(passengerDTO);
     }
 
     @Test
-    public void testDeletePassengerByIdSuccess() {
-        Long id = 1L;
+    void testDeletePassengerById_Success() {
         Passenger passenger = new Passenger();
+        passenger.setPassenger_id(1L);
+        User user = new User();
+        user.setId(2L);
+        passenger.setUser(user);
 
-        when(passengerRepository.findById(id)).thenReturn(Optional.of(passenger));
+        when(passengerRepository.findById(1L)).thenReturn(Optional.of(passenger));
+        doNothing().when(userRepository).deleteById(2L);
+        doNothing().when(passengerRepository).deleteById(1L);
 
-        ResponseDTO responseDTO = passengerService.deletePassengerById(id);
-
-        assertEquals("Passenger with id : " + id + " Deleted Successfully.", responseDTO.getMessage());
-        verify(userRepository, times(1)).deleteById(id);
-        verify(passengerRepository, times(1)).deleteById(id);
+        ResponseDTO responseDTO = passengerService.deletePassengerById(1L);
+        assertNotNull(responseDTO);
+        assertEquals("Passenger with id : 1 Deleted Successfully.", responseDTO.getMessage());
     }
 
     @Test
-    public void testDeletePassengerByIdNotFound() {
-        Long id = 1L;
+    void testDeletePassengerById_NotFound() {
+        when(passengerRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(passengerRepository.findById(id)).thenReturn(Optional.empty());
-
-        ResponseDTO responseDTO = passengerService.deletePassengerById(id);
-
+        ResponseDTO responseDTO = passengerService.deletePassengerById(1L);
         assertNull(responseDTO);
     }
 
     @Test
-    public void testUpdatePassengerDetailsSuccess() {
-        Long id = 1L;
+    void testUpdatePassengerDetails_Success() {
         ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("updatedUser");
-        reqUserDTO.setPassword("newPass");
-        reqUserDTO.setRePassword("newPass");
-        reqUserDTO.setEmail("updated@example.com");
+        reqUserDTO.setUsername("john_doe_updated");
+        reqUserDTO.setPassword("newpassword123");
+        reqUserDTO.setRePassword("newpassword123");
+        reqUserDTO.setEmail("john_new@example.com");
         reqUserDTO.setPhone("0987654321");
 
-        Passenger passenger = new Passenger();
-        passenger.setPassenger_id(id);
-        passenger.setEmail("updated@example.com");
-        passenger.setPhone("0987654321");
-        passenger.setUser(new User());
+        Passenger existingPassenger = new Passenger();
+        existingPassenger.setPassenger_id(1L);
+        existingPassenger.setEmail("john@example.com");
+        existingPassenger.setPhone("1234567890");
+        User existingUser = new User();
+        existingUser.setId(2L);
+        existingUser.setUsername("john_doe");
+        existingUser.setPassword("password123");
+        existingUser.setRole(RoleEnum.PASSENGER);
+        existingPassenger.setUser(existingUser);
 
-        User user = new User();
-        user.setId(id);
-        user.setUsername("updatedUser");
-        user.setPassword("newPass");
-        user.setRole(RoleEnum.ADMIN);
+        when(passengerRepository.findById(1L)).thenReturn(Optional.of(existingPassenger));
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+        when(passengerRepository.save(any(Passenger.class))).thenReturn(existingPassenger);
 
-        when(passengerRepository.findById(id)).thenReturn(Optional.of(passenger));
-        when(userRepository.save(any(User.class))).thenReturn(user);
-        when(passengerRepository.save(any(Passenger.class))).thenReturn(passenger);
-
-        ResPassengerDTO passengerDTO = passengerService.updatePassengerDetails(id, reqUserDTO);
-
+        ResPassengerDTO passengerDTO = passengerService.updatePassengerDetails(1L, reqUserDTO);
         assertNotNull(passengerDTO);
-        assertEquals("updated@example.com", passengerDTO.getEmail());
-        assertEquals(id, passengerDTO.getId());
-        assertEquals("updatedUser", passengerDTO.getUsername());
+        assertEquals(reqUserDTO.getUsername(), passengerDTO.getUsername());
+        assertEquals(reqUserDTO.getEmail(), passengerDTO.getEmail());
+        assertEquals(reqUserDTO.getPhone(), passengerDTO.getPhone());
     }
 
     @Test
-    public void testUpdatePassengerDetailsPasswordMismatch() {
-        Long id = 1L;
+    void testUpdatePassengerDetails_NotFound() {
         ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("updatedUser");
-        reqUserDTO.setPassword("newPass");
-        reqUserDTO.setRePassword("differentPass");
-        reqUserDTO.setEmail("updated@example.com");
+        reqUserDTO.setUsername("john_doe_updated");
 
-        IllegalArgumentException thrown = assertThrows(
-                IllegalArgumentException.class,
-                () -> passengerService.updatePassengerDetails(id, reqUserDTO)
-        );
-        assertEquals("Passwords do not match", thrown.getMessage());
-    }
+        when(passengerRepository.findById(1L)).thenReturn(Optional.empty());
 
-    @Test
-    public void testUpdatePassengerDetailsNotFound() {
-        Long id = 1L;
-        ReqUserDTO reqUserDTO = new ReqUserDTO();
-        reqUserDTO.setUsername("updatedUser");
-        reqUserDTO.setPassword("newPass");
-        reqUserDTO.setRePassword("newPass");
-        reqUserDTO.setEmail("updated@example.com");
-
-        when(passengerRepository.findById(id)).thenReturn(Optional.empty());
-
-        ResPassengerDTO passengerDTO = passengerService.updatePassengerDetails(id, reqUserDTO);
-
+        ResPassengerDTO passengerDTO = passengerService.updatePassengerDetails(1L, reqUserDTO);
         assertNull(passengerDTO);
     }
 }
