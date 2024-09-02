@@ -20,7 +20,7 @@ public class Flight {
     private String airlineName;
     @Column(nullable = false)
     private String flightNumber;
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private LocalTime DepartureTime;
     private String DestinationAirport;
     @Column(nullable = false)

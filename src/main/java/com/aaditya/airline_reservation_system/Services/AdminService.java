@@ -87,7 +87,7 @@ public class AdminService {
         Optional<Admin> optionalAdmin = adminRepository.findById(id);
         ResponseDTO response = new ResponseDTO();
         if(optionalAdmin.isPresent()){
-            adminRepository.deleteById(id);
+            adminRepository.deleteById(optionalAdmin.get().getUser().getId());
             userRepository.deleteById(id);
             response.setMessage("User Deleted Successfully");
             return response;
@@ -103,7 +103,7 @@ public class AdminService {
         }
         Admin admin = optionalAdmin.get();
         User user = new User();
-        user.setId(id);
+        user.setId(admin.getUser().getId());
         user.setUsername(reqUserDTO.getUsername());
         user.setRole(RoleEnum.ADMIN);
         if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
@@ -111,13 +111,14 @@ public class AdminService {
         }else {
             throw new IllegalArgumentException("Passwords do not match");
         }
+
         Admin updatedAdmin = new Admin();
         updatedAdmin.setAdmin_id(id);
         updatedAdmin.setUser(user);
         updatedAdmin.setEmail(reqUserDTO.getEmail());
         try {
             userRepository.save(user);
-            adminRepository.save(admin);
+            adminRepository.save(updatedAdmin);
         } catch (Exception e) {
             throw new RuntimeException("Error occurred while saving user or admin: " + e.getMessage(), e);
         }

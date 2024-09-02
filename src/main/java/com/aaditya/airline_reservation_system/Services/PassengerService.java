@@ -23,68 +23,72 @@ public class PassengerService {
     @Autowired
     UserRepository userRepository;
     public ResponseDTO addNewPassenger(ReqUserDTO reqUserDTO) {
-        try {
+        try{
             User user = new User();
             user.setUsername(reqUserDTO.getUsername());
-            if (reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
+            if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
                 user.setPassword(reqUserDTO.getPassword());
-            } else {
+            }else {
                 throw new IllegalArgumentException("Passwords do not match");
             }
-            user.setRole(RoleEnum.ADMIN);
+            user.setRole(RoleEnum.PASSENGER);
             userRepository.save(user);
             Passenger passenger = new Passenger();
+            passenger.setPassenger_id(user.getId());
             passenger.setEmail(reqUserDTO.getEmail());
             passenger.setUser(user);
             passenger.setPhone(reqUserDTO.getPhone());
             passengerRepository.save(passenger);
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage("New Admin Added Successfully.");
+            return response;
         }catch (Exception e){
             throw new RuntimeException("Something Went Wrong" + e);
         }
-        return null;
+
     }
 
     public List<ResPassengerDTO> getAllPassengerDetails() {
         List<Passenger> passengerList = passengerRepository.findAll();
         List<ResPassengerDTO> responseList = new ArrayList<>();
+        if (passengerList.isEmpty()) return null;
         try{
             for (Passenger passenger : passengerList){
                 ResPassengerDTO passengerDTO = new ResPassengerDTO();
+                passengerDTO.setId(passenger.getPassenger_id());
                 passengerDTO.setEmail(passenger.getEmail());
                 passengerDTO.setPhone(passenger.getPhone());
                 passengerDTO.setRole("PASSENGER");
                 passengerDTO.setUsername(passenger.getUser().getUsername());
+                responseList.add(passengerDTO);
             }
         }catch(Exception e){
             throw new RuntimeException("Failed to retrieve passenger details: " + e.getMessage(), e);
         }
-        return null;
+        return responseList;
     }
 
     public ResPassengerDTO getPassengerById(Long id) {
         Optional<Passenger> passenger = passengerRepository.findById(id);
-
+        if(passenger.isEmpty()) return null;
         try {
-            if(passenger.isPresent()){
                 Passenger passenger_data = passenger.get();
                 ResPassengerDTO passengerDTO = new ResPassengerDTO();
+                passengerDTO.setId(passenger_data.getPassenger_id());
                 passengerDTO.setUsername(passenger_data.getUser().getUsername());
                 passengerDTO.setPhone(passenger_data.getPhone());
                 passengerDTO.setRole("PASSENGER");
                 passengerDTO.setEmail(passenger_data.getEmail());
                 return passengerDTO;
-
-            }
         }catch(Exception e){
             throw new RuntimeException("User not Found with id :" + id + e.getStackTrace() + e);
         }
-        return null;
     }
 
     public ResponseDTO deletePassengerById(Long id) {
         Optional<Passenger> passenger = passengerRepository.findById(id);
         if(passenger.isPresent()){
-            userRepository.deleteById(id);
+            userRepository.deleteById(passenger.get().getUser().getId());
             passengerRepository.deleteById(id);
             return new ResponseDTO("Passenger with id : " + id +" Deleted Successfully.");
         }
@@ -96,33 +100,36 @@ public class PassengerService {
         if(optionalPassenger.isEmpty()){
             return null;
         }
-        Passenger passenger = optionalPassenger.get();
-        User user = new User();
-        user.setId(id);
-        user.setUsername(reqUserDTO.getUsername());
-        user.setRole(RoleEnum.PASSENGER);
-        if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
-            user.setPassword(reqUserDTO.getPassword());
-        }else {
-            throw new IllegalArgumentException("Passwords do not match");
-        }
-        Passenger updatedPassenger = new Passenger();
-        updatedPassenger.setPassenger_id(id);
-        updatedPassenger.setUser(user);
-        updatedPassenger.setEmail(reqUserDTO.getEmail());
-        try {
+        try{
+            Passenger passenger = optionalPassenger.get();
+            User user = new User();
+            user.setId(passenger.getUser().getId());
+            user.setUsername(reqUserDTO.getUsername());
+            user.setRole(passenger.getUser().getRole());
+            if(reqUserDTO.getPassword().equals(reqUserDTO.getRePassword())) {
+                user.setPassword(reqUserDTO.getPassword());
+            }else {
+                throw new IllegalArgumentException("Passwords do not match");
+            }
             userRepository.save(user);
-            passengerRepository.save(passenger);
-        } catch (Exception e) {
-            throw new RuntimeException("Error occurred while saving user or passenger: " + e.getMessage(), e);
+            Passenger updatedPassenger = new Passenger();
+            updatedPassenger.setPassenger_id(passenger.getPassenger_id());
+            updatedPassenger.setUser(user);
+            updatedPassenger.setEmail(reqUserDTO.getEmail());
+            updatedPassenger.setPhone(reqUserDTO.getPhone());
+
+            passengerRepository.save(updatedPassenger);
+
+            ResPassengerDTO passengerDTO = new ResPassengerDTO();
+            passengerDTO.setEmail(updatedPassenger.getEmail());
+            passengerDTO.setId(updatedPassenger.getPassenger_id());
+            passengerDTO.setRole("PASSENGER");
+            passengerDTO.setUsername(user.getUsername());
+            passengerDTO.setPhone(updatedPassenger.getPhone());
+
+            return passengerDTO;
+        }catch (Exception e) {
+            throw new RuntimeException("something went wrong "+ e.getStackTrace()+e);
         }
-
-        ResPassengerDTO passengerDTO = new ResPassengerDTO();
-        passengerDTO.setEmail(updatedPassenger.getEmail());
-        passengerDTO.setId(updatedPassenger.getPassenger_id());
-        passengerDTO.setRole("PASSENGER");
-        passengerDTO.setUsername(user.getUsername());
-
-        return passengerDTO;
     }
 }

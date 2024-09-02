@@ -66,9 +66,9 @@ public class FlightService {
     }
 
     public ResFlightDTO getFlightById(Long id) {
+        Optional<Flight> optionalFlight = flightRepository.findById(id);
+        if(optionalFlight.isEmpty()) return  null;
        try {
-           Optional<Flight> optionalFlight = flightRepository.findById(id);
-           if(optionalFlight.isEmpty()) return  null;
            Flight flight = optionalFlight.get();
            ResFlightDTO flightDTO = new ResFlightDTO();
            flightDTO.setFlightNumber(flight.getFlightNumber());
@@ -81,9 +81,10 @@ public class FlightService {
     }
 
     public ResFlightDTO updateFlight(Long id, ReqFlightDTO reqFlightDTO) {
+        Optional<Flight> existingFlightOpt = flightRepository.findById(id);
+        if (existingFlightOpt.isEmpty()) return null;
         try{
-            Optional<Flight> existingFlightOpt = flightRepository.findById(id);
-            if (existingFlightOpt.isPresent()) {
+
                 Flight flight = existingFlightOpt.get();
 
                 flight.setFlightNumber(reqFlightDTO.getFlightNumber());
@@ -102,10 +103,10 @@ public class FlightService {
                 flightDTO.setDate(flight.getDate());
                 flightDTO.setDeparture_time(flight.getDepartureTime());
                 return flightDTO;
-            }
+
         }
         catch(Exception e) { throw new RuntimeException("Not able to find ticket id : "+ id + e.getStackTrace() + e);}
-        return null;
+
     }
 
     public ResponseDTO deleteFlight(Long id) {

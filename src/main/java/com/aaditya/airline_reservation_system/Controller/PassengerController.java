@@ -22,10 +22,10 @@ public class PassengerController {
     @PostMapping
     public ResponseEntity<ResponseDTO> addNewPassenger(@RequestBody ReqUserDTO reqUserDTO) {
         ResponseDTO response = passengerService.addNewPassenger(reqUserDTO);
-        if (response != null) {
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        if (response == null) {
+            return new ResponseEntity<>(new ResponseDTO("Something Went Wrong"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(new ResponseDTO("Something Went Wrong"), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping

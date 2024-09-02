@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class TicketService {
                 ticketDTO.setAirline_name(ticket.getFlight().getAirlineName());
                 ticketDTO.setDate(LocalDate.now());
                 ticketDTO.setAirport_name(ticket.getFlight().getAirportName());
-                ticketDTO.setDeparture_time(ticket.getFlight().getDepartureTime());
+                ticketDTO.setDeparture_time(LocalTime.parse(ticket.getFlight().getDepartureTime().toString()));
                 ticketDTO.setDestination_airport(ticket.getFlight().getDestinationAirport());
                 ticketDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
 
@@ -117,7 +118,7 @@ public class TicketService {
             ticketDTO.setAirline_name(ticket.getFlight().getAirlineName());
             ticketDTO.setDate(LocalDate.now());
             ticketDTO.setAirport_name(ticket.getFlight().getAirportName());
-            ticketDTO.setDeparture_time(ticket.getFlight().getDepartureTime());
+            ticketDTO.setDeparture_time(LocalTime.parse(ticket.getFlight().getDepartureTime().toString()));
             ticketDTO.setDestination_airport(ticket.getFlight().getDestinationAirport());
             ticketDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
             return ticketDTO;
