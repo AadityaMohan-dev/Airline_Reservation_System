@@ -127,7 +127,8 @@ public class FlightService {
                 flightRepository.deleteById(id);
                 return new ResponseDTO("Flight Deleted Successfully ...");
             }
-        }catch(Exception e) { throw new RuntimeException("Not able to find ticket id : "+ id + e.getStackTrace() + e);}
-        return null;
+        }catch(Exception e) {
+            throw new RuntimeException("Something Went Wrong" + e.getStackTrace() + e);
+        }return null;
     }
 }

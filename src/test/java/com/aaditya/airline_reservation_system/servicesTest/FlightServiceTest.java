@@ -36,13 +36,14 @@ public class FlightServiceTest {
     }
 
     @Test
-    public void testCreateFlight_Success() {
+    void testCreateFlight_Success() {
+        // Setup
         ReqFlightDTO reqFlightDTO = new ReqFlightDTO();
-        reqFlightDTO.setAirlineName("Airline");
-        reqFlightDTO.setFlightNumber("FL123");
-        reqFlightDTO.setDestinationAirport("Destination");
-        reqFlightDTO.setAirportName("Airport");
-        reqFlightDTO.setDepartureTime("10:00:00");
+        reqFlightDTO.setAirlineName("TestAirline");
+        reqFlightDTO.setFlightNumber("1234");
+        reqFlightDTO.setDestinationAirport("DestinationAirport");
+        reqFlightDTO.setAirportName("AirportName");
+        reqFlightDTO.setDepartureTime("10:00");
 
         Flight flight = new Flight();
         flight.setFlight_id(1L);
@@ -53,14 +54,29 @@ public class FlightServiceTest {
         flight.setDate(LocalDate.now());
         flight.setDepartureTime(reqFlightDTO.getDepartureTime());
 
+        // Mock the flightRepository save method to return the flight object
         when(flightRepository.save(any(Flight.class))).thenReturn(flight);
 
-        ResFlightDTO resFlightDTO = flightService.createFlight(reqFlightDTO);
+        // Execute
+        ResFlightDTO result = null;
+        try {
+            result = flightService.createFlight(reqFlightDTO);
+        } catch (RuntimeException e) {
+            System.err.println("Exception during createFlight: " + e.getMessage());
+            e.printStackTrace();
+        }
 
-        assertNotNull(resFlightDTO);
-        assertEquals("FL123", resFlightDTO.getFlightNumber());
-        assertEquals("Airline", resFlightDTO.getAirlineName());
+        // Verify
+        assertNotNull(result, "Result should not be null");
+        assertEquals(1L, result.getId(), "ID should match");
+        assertEquals("1234", result.getFlightNumber(), "Flight number should match");
+        assertEquals("TestAirline", result.getAirlineName(), "Airline name should match");
+        assertEquals("AirportName", result.getAirportName(), "Airport name should match");
+        assertEquals("10:00", result.getDepartureTime(), "Departure time should match");
+        assertEquals("DestinationAirport", result.getDestinationAirport(), "Destination airport should match");
+        assertEquals(LocalDate.now(), result.getDate(), "Date should match");
     }
+
 
     @Test
     public void testGetAllFlights_Success() {
