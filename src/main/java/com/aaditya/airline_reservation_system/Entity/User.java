@@ -26,4 +26,7 @@ public class User {
 
 
     private RoleEnum role;
+
+    public User(String testUser) {
+    }
 }

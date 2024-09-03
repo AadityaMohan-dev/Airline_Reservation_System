@@ -17,9 +17,9 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
-    @PostMapping("/{passenger_id}/{flight_id}")
-    private ResponseEntity<Object> createTicket(@RequestBody ReqTicketDTO reqTicketDTO , @PathVariable Long passenger_id, @PathVariable Long flight_id){
-        ResTicketDTO ticket = ticketService.createTicket(reqTicketDTO, flight_id,passenger_id);
+    @PostMapping
+    private ResponseEntity<Object> createTicket(@RequestBody ReqTicketDTO reqTicketDTO ){
+        ResTicketDTO ticket = ticketService.createTicket(reqTicketDTO);
         if(ticket == null){
             return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(new ResponseDTO("Something Went Wrong..."));
         }
@@ -46,7 +46,7 @@ public class TicketController {
     private ResponseEntity<Object> deleteTicketById(@PathVariable Long id){
         ResponseDTO ticket = ticketService.deleteTicketById(id);
         if(ticket == null){
-            return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(new ResponseDTO("Something Went Wrong..."));
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("Ticket with id : " + id + " Not Found !!"));
         }
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(ticket);
     }

@@ -24,5 +24,5 @@ public class ResTicketDTO {
     private String airport_name;
     @NonNull
     private LocalDate date;
-    private LocalTime departure_time;
+    private String departure_time;
 }

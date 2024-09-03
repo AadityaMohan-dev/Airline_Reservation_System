@@ -13,4 +13,8 @@ import org.springframework.stereotype.Component;
 public class ReqTicketDTO {
     @NonNull
     private String username;
+    @NonNull
+    private Long passenger_id;
+    @NonNull
+    private Long flight_id;
 }

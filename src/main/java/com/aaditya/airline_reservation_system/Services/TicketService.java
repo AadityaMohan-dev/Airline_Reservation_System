@@ -38,19 +38,24 @@ public class TicketService {
 
         return ticketNumber;
     }
-    public ResTicketDTO createTicket(ReqTicketDTO reqTicketDTO, Long flight_id, Long passenger_id) {
-        try{
-            Optional<Passenger> passengerOptional = passengerRepository.findById(passenger_id);
-            Optional<Flight> flightOptional = flightRepository.findById(flight_id);
-            if(passengerOptional.isEmpty() || flightOptional.isEmpty()) return null;
+    public ResTicketDTO createTicket(ReqTicketDTO reqTicketDTO) {
+        Optional<Passenger> passengerOptional = passengerRepository.findById(reqTicketDTO.getPassenger_id());
+        Optional<Flight> flightOptional = flightRepository.findById(reqTicketDTO.getFlight_id());
 
+        if (passengerOptional.isEmpty() || flightOptional.isEmpty()) {
+            return null;
+        }
+
+        try {
             Passenger passenger = passengerOptional.get();
+            passenger.getUser().setUsername(reqTicketDTO.getUsername());
             Flight flight = flightOptional.get();
 
             Ticket ticket = new Ticket();
             ticket.setTicket_number(createTicketNumber(passenger));
             ticket.setFlight(flight);
             ticket.setPassenger(passenger);
+
             ticketRepository.save(ticket);
 
             ResTicketDTO ticketDTO = new ResTicketDTO();
@@ -59,13 +64,15 @@ public class TicketService {
             ticketDTO.setAirline_name(ticket.getFlight().getAirlineName());
             ticketDTO.setDate(LocalDate.now());
             ticketDTO.setAirport_name(ticket.getFlight().getAirportName());
-            ticketDTO.setDeparture_time(LocalTime.parse(ticket.getFlight().getDepartureTime()));
+            ticketDTO.setDeparture_time(ticket.getFlight().getDepartureTime());
             ticketDTO.setDestination_airport(ticket.getFlight().getDestinationAirport());
             ticketDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
 
-            return  ticketDTO;
-        }catch (Exception e){
-            throw new RuntimeException("something went wrong"+ e.getStackTrace()+ e);
+            return ticketDTO;
+        } catch (Exception e) {
+            System.err.println("An error occurred while creating the ticket: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("An error occurred while creating the ticket", e);
         }
     }
 
@@ -78,7 +85,7 @@ public class TicketService {
                 return new ResponseDTO("ticket deleted with id : " + id);
             }
         }catch (Exception e){
-            throw new RuntimeException("ticket with id " + id + "Not Found !!");
+            throw new RuntimeException("some thing went wrong " + e.getStackTrace() + e);
         }
         return null;
     }
@@ -95,7 +102,7 @@ public class TicketService {
                 ticketDTO.setAirline_name(ticket.getFlight().getAirlineName());
                 ticketDTO.setDate(LocalDate.now());
                 ticketDTO.setAirport_name(ticket.getFlight().getAirportName());
-                ticketDTO.setDeparture_time(LocalTime.parse(ticket.getFlight().getDepartureTime().toString()));
+                ticketDTO.setDeparture_time(ticket.getFlight().getDepartureTime());
                 ticketDTO.setDestination_airport(ticket.getFlight().getDestinationAirport());
                 ticketDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
 
@@ -108,22 +115,22 @@ public class TicketService {
     }
 
     public ResTicketDTO getTicketById(Long id) {
+        Optional<Ticket> ticketOptional = ticketRepository.findById(id);
+        if(ticketOptional.isEmpty()) return null;
+        Ticket ticket = ticketOptional.get();
         try{
-            Optional<Ticket> ticketOptional = ticketRepository.findById(id);
-            if(ticketOptional.isEmpty()) return null;
-            Ticket ticket = new Ticket();
             ResTicketDTO ticketDTO = new ResTicketDTO();
             ticketDTO.setTicket_number(ticket.getTicket_number());
             ticketDTO.setUsername(ticket.getPassenger().getUser().getUsername());
             ticketDTO.setAirline_name(ticket.getFlight().getAirlineName());
             ticketDTO.setDate(LocalDate.now());
             ticketDTO.setAirport_name(ticket.getFlight().getAirportName());
-            ticketDTO.setDeparture_time(LocalTime.parse(ticket.getFlight().getDepartureTime().toString()));
+            ticketDTO.setDeparture_time(ticket.getFlight().getDepartureTime());
             ticketDTO.setDestination_airport(ticket.getFlight().getDestinationAirport());
             ticketDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
             return ticketDTO;
         }catch (Exception e){
-            throw new RuntimeException("ticket with id " + id + "Not Found !!");
+            throw new RuntimeException("ticket with id " + id + " Not Found !!");
         }
     }
 
