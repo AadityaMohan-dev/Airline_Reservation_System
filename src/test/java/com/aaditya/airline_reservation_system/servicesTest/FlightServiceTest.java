@@ -37,7 +37,6 @@ public class FlightServiceTest {
 
     @Test
     void testCreateFlight_Success() {
-        // Setup
         ReqFlightDTO reqFlightDTO = new ReqFlightDTO();
         reqFlightDTO.setAirlineName("TestAirline");
         reqFlightDTO.setFlightNumber("1234");
@@ -54,10 +53,8 @@ public class FlightServiceTest {
         flight.setDate(LocalDate.now());
         flight.setDepartureTime(reqFlightDTO.getDepartureTime());
 
-        // Mock the flightRepository save method to return the flight object
         when(flightRepository.save(any(Flight.class))).thenReturn(flight);
 
-        // Execute
         ResFlightDTO result = null;
         try {
             result = flightService.createFlight(reqFlightDTO);
@@ -66,7 +63,6 @@ public class FlightServiceTest {
             e.printStackTrace();
         }
 
-        // Verify
         assertNotNull(result, "Result should not be null");
         assertEquals(1L, result.getId(), "ID should match");
         assertEquals("1234", result.getFlightNumber(), "Flight number should match");

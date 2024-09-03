@@ -19,7 +19,7 @@ public class AdminController {
     private AdminService adminService;
 
     @PostMapping
-    private ResponseEntity<Object> addNewAdmin(@RequestBody ReqUserDTO reqUserDTO){
+    ResponseEntity<Object> addNewAdmin(@RequestBody ReqUserDTO reqUserDTO){
         ResponseDTO response = adminService.addNewAdmin(reqUserDTO);
         if(response != null){
             return ResponseEntity.status(HttpStatusCode.valueOf(201)).body(response);
@@ -27,7 +27,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(new ResponseDTO("Something Went Wrong"));
     }
     @GetMapping
-    private ResponseEntity<Object> getAllAdminDetails() throws Exception {
+    ResponseEntity<Object> getAllAdminDetails() throws Exception {
         List<ResAdminDTO> adminDTO =adminService.getAllAdminDetails();
         if(adminDTO.isEmpty()){
             return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("Something Went Wrong"));
@@ -36,7 +36,7 @@ public class AdminController {
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<Object> getAdminDetails(@PathVariable Long id){
+    ResponseEntity<Object> getAdminDetails(@PathVariable Long id){
         ResAdminDTO admin =adminService.getAdminById(id);
         if(admin == null){
            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("Admin Not Found with id : " + id));
@@ -44,7 +44,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(admin);
     }
     @DeleteMapping("/{id}")
-    private ResponseEntity<Object> deleteById(@PathVariable Long id){
+    ResponseEntity<Object> deleteById(@PathVariable Long id){
         ResponseDTO response = adminService.deleteAdminById(id);
         if(response != null){
             return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(response);
@@ -53,7 +53,7 @@ public class AdminController {
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<Object> updateAdminProfile(@RequestBody ReqUserDTO reqUserDTO, @PathVariable Long id){
+    ResponseEntity<Object> updateAdminProfile(@RequestBody ReqUserDTO reqUserDTO, @PathVariable Long id){
         ResAdminDTO adminDetails = adminService.updateAdminDetails(id,reqUserDTO);
         if(adminDetails != null){
             return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(adminDetails);

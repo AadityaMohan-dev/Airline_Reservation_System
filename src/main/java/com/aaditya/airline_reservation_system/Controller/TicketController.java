@@ -18,7 +18,7 @@ public class TicketController {
     private TicketService ticketService;
 
     @PostMapping
-    private ResponseEntity<Object> createTicket(@RequestBody ReqTicketDTO reqTicketDTO ){
+    ResponseEntity<Object> createTicket(@RequestBody ReqTicketDTO reqTicketDTO){
         ResTicketDTO ticket = ticketService.createTicket(reqTicketDTO);
         if(ticket == null){
             return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(new ResponseDTO("Something Went Wrong..."));
@@ -27,7 +27,7 @@ public class TicketController {
 
     }
     @GetMapping
-    private ResponseEntity<Object> getAllTickets(){
+    ResponseEntity<Object> getAllTickets(){
         List<ResTicketDTO> ticket = ticketService.getAllTickets();
         if(ticket == null){
             return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(new ResponseDTO("Something Went Wrong..."));
@@ -35,7 +35,7 @@ public class TicketController {
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(ticket);
     }
     @GetMapping("/{id}")
-    private ResponseEntity<Object> getTicketById(@PathVariable Long id){
+    ResponseEntity<Object> getTicketById(@PathVariable Long id){
         ResTicketDTO ticket = ticketService.getTicketById(id);
         if(ticket == null){
             return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(new ResponseDTO("Something Went Wrong..."));
@@ -43,7 +43,7 @@ public class TicketController {
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(ticket);
     }
     @DeleteMapping("/{id}")
-    private ResponseEntity<Object> deleteTicketById(@PathVariable Long id){
+    ResponseEntity<Object> deleteTicketById(@PathVariable Long id){
         ResponseDTO ticket = ticketService.deleteTicketById(id);
         if(ticket == null){
             return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("Ticket with id : " + id + " Not Found !!"));

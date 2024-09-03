@@ -21,14 +21,14 @@ public class FlightController {
     private FlightService flightService;
 
     @PostMapping
-    public ResponseEntity<Object> createFlight(@RequestBody ReqFlightDTO reqFlightDTO) {
+    ResponseEntity<Object> createFlight(@RequestBody ReqFlightDTO reqFlightDTO) {
         ResFlightDTO createdFlight = flightService.createFlight(reqFlightDTO);
         if(createdFlight == null) return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(new ResponseDTO("something went wrong..."));
         return ResponseEntity.status(HttpStatusCode.valueOf(201)).body(createdFlight);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getAllFlights() {
+    ResponseEntity<Object> getAllFlights() {
         List<ResFlightDTO> flights = flightService.getAllFlights();
         if(flights == null) return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("No Flight Assigned."));
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(flights);
@@ -36,20 +36,20 @@ public class FlightController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getFlightById(@PathVariable Long id) {
+    ResponseEntity<Object> getFlightById(@PathVariable Long id) {
         ResFlightDTO flight = flightService.getFlightById(id);
         if(flight == null)return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("No Flight Assigned."));
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(flight);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateFlight(@PathVariable Long id, @RequestBody ReqFlightDTO reqFlightDTO) {
+    ResponseEntity<Object> updateFlight(@PathVariable Long id, @RequestBody ReqFlightDTO reqFlightDTO) {
         ResFlightDTO updatedFlight = flightService.updateFlight(id, reqFlightDTO);
         return updatedFlight != null ? ResponseEntity.status(HttpStatusCode.valueOf(200)).body(updatedFlight) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDTO> deleteFlight(@PathVariable Long id) {
+    ResponseEntity<ResponseDTO> deleteFlight(@PathVariable Long id) {
         ResponseDTO response = flightService.deleteFlight(id);
         if(response == null) return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("Flight with id : "+id+" Not Found!!"));
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(response);

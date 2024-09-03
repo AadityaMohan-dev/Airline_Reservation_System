@@ -1,12 +1,12 @@
 //package com.aaditya.airline_reservation_system.servicesTest;
 //
+//
 //import com.aaditya.airline_reservation_system.DTO.ReqTicketDTO;
 //import com.aaditya.airline_reservation_system.DTO.ResTicketDTO;
 //import com.aaditya.airline_reservation_system.DTO.ResponseDTO;
 //import com.aaditya.airline_reservation_system.Entity.Flight;
 //import com.aaditya.airline_reservation_system.Entity.Passenger;
 //import com.aaditya.airline_reservation_system.Entity.Ticket;
-//import com.aaditya.airline_reservation_system.Entity.User;
 //import com.aaditya.airline_reservation_system.Repository.FlightRepository;
 //import com.aaditya.airline_reservation_system.Repository.PassengerRepository;
 //import com.aaditya.airline_reservation_system.Repository.TicketRepository;
@@ -16,15 +16,16 @@
 //import org.mockito.InjectMocks;
 //import org.mockito.Mock;
 //import org.mockito.MockitoAnnotations;
-//import org.springframework.boot.test.context.SpringBootTest;
 //
 //import java.time.LocalDate;
-//import java.util.*;
+//import java.time.LocalTime;
+//import java.util.ArrayList;
+//import java.util.List;
+//import java.util.Optional;
 //
 //import static org.junit.jupiter.api.Assertions.*;
 //import static org.mockito.Mockito.*;
 //
-//@SpringBootTest
 //class TicketServiceTest {
 //
 //    @InjectMocks
@@ -45,113 +46,151 @@
 //    }
 //
 //    @Test
-//    void createTicket_Success() {
-//        // Setup
-//        Long passengerId = 1L;
-//        Long flightId = 1L;
-//        ReqTicketDTO reqTicketDTO = new ReqTicketDTO();
-//        reqTicketDTO.setUsername("testUser");
-//        reqTicketDTO.setPassenger_id(passengerId);
-//        reqTicketDTO.setFlight_id(flightId);
-//
+//    void testCreateTicket_Success() {
+//        // Arrange
 //        Passenger passenger = new Passenger();
-//        passenger.setPassenger_id(passengerId);
-//        passenger.setUser(new User("testUser"));
+//        passenger.setPassenger_id(1L);
+//        passenger.getUser().setUsername("john_doe");
 //
 //        Flight flight = new Flight();
-//        flight.setAirlineName("TestAirline");
-//        flight.setAirportName("TestAirport");
-//        flight.setDepartureTime("10:00");
-//        flight.setDestinationAirport("DestinationAirport");
-//        flight.setFlightNumber("1234");
+//        flight.setAirlineName("AirlineX");
+//        flight.setAirportName("AirportA");
+//        flight.setDepartureTime("10:30:00");
+//        flight.setDestinationAirport("AirportB");
+//        flight.setFlightNumber("FL123");
+//
+//        ReqTicketDTO reqTicketDTO = new ReqTicketDTO();
+//        reqTicketDTO.setPassenger_id(1L);
+//        reqTicketDTO.setFlight_id(1L);
+//        reqTicketDTO.setUsername("john_doe");
 //
 //        Ticket ticket = new Ticket();
 //        ticket.setTicket_number("1-0001");
-//        ticket.setPassenger(passenger);
 //        ticket.setFlight(flight);
+//        ticket.setPassenger(passenger);
 //
-//        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
-//        when(flightRepository.findById(flightId)).thenReturn(Optional.of(flight));
+//        when(passengerRepository.findById(1L)).thenReturn(Optional.of(passenger));
+//        when(flightRepository.findById(1L)).thenReturn(Optional.of(flight));
 //        when(ticketRepository.save(any(Ticket.class))).thenReturn(ticket);
 //
-//        // Execute
+//        // Act
 //        ResTicketDTO result = ticketService.createTicket(reqTicketDTO);
 //
-//        // Verify
+//        // Assert
 //        assertNotNull(result);
 //        assertEquals("1-0001", result.getTicket_number());
-//        assertEquals("testUser", result.getUsername());
-//        assertEquals("TestAirline", result.getAirline_name());
+//        assertEquals("john_doe", result.getUsername());
+//        assertEquals("AirlineX", result.getAirline_name());
 //        assertEquals(LocalDate.now(), result.getDate());
-//        assertEquals("TestAirport", result.getAirport_name());
-//        assertEquals("10:00", result.getDeparture_time());
-//        assertEquals("DestinationAirport", result.getDestination_airport());
-//        assertEquals("1234", result.getFlightNumber());
+//        assertEquals("AirportA", result.getAirport_name());
+//        assertEquals(LocalTime.of(10, 30), result.getDeparture_time());
+//        assertEquals("AirportB", result.getDestination_airport());
+//        assertEquals("FL123", result.getFlightNumber());
 //    }
 //
 //    @Test
-//    void deleteTicketById_Success() {
-//        Long ticketId = 1L;
-//        when(ticketRepository.findById(ticketId)).thenReturn(Optional.of(new Ticket()));
+//    void testCreateTicket_Failure() {
+//        // Arrange
+//        ReqTicketDTO reqTicketDTO = new ReqTicketDTO();
+//        reqTicketDTO.setPassenger_id(1L);
+//        reqTicketDTO.setFlight_id(1L);
 //
-//        ResponseDTO response = ticketService.deleteTicketById(ticketId);
+//        when(passengerRepository.findById(1L)).thenReturn(Optional.empty());
+//        when(flightRepository.findById(1L)).thenReturn(Optional.empty());
 //
+//        // Act
+//        ResTicketDTO result = ticketService.createTicket(reqTicketDTO);
+//
+//        // Assert
+//        assertNull(result);
+//    }
+//
+//    @Test
+//    void testDeleteTicketById_Success() {
+//        // Arrange
+//        Ticket ticket = new Ticket();
+//        ticket.setTicket_number("1-0001");
+//
+//        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+//
+//        // Act
+//        ResponseDTO response = ticketService.deleteTicketById(1L);
+//
+//        // Assert
 //        assertNotNull(response);
 //        assertEquals("ticket deleted with id : 1", response.getMessage());
-//        verify(ticketRepository, times(1)).deleteById(ticketId);
+//        verify(ticketRepository, times(1)).deleteById(1L);
 //    }
 //
 //    @Test
-//    void deleteTicketById_NotFound() {
-//        Long ticketId = 1L;
-//        when(ticketRepository.findById(ticketId)).thenReturn(Optional.empty());
+//    void testDeleteTicketById_Failure() {
+//        // Arrange
+//        when(ticketRepository.findById(1L)).thenReturn(Optional.empty());
 //
-//        ResponseDTO response = ticketService.deleteTicketById(ticketId);
+//        // Act
+//        ResponseDTO response = ticketService.deleteTicketById(1L);
 //
+//        // Assert
 //        assertNull(response);
-//        verify(ticketRepository, never()).deleteById(ticketId);
+//        verify(ticketRepository, never()).deleteById(anyLong());
 //    }
 //
 //    @Test
-//    void getAllTickets_Success() {
+//    void testGetAllTickets_Success() {
+//        // Arrange
 //        List<Ticket> tickets = new ArrayList<>();
 //        Ticket ticket = new Ticket();
 //        ticket.setTicket_number("1-0001");
-//        ticket.setPassenger(new Passenger());
-//        ticket.setFlight(new Flight());
 //        tickets.add(ticket);
 //
 //        when(ticketRepository.findAll()).thenReturn(tickets);
 //
+//        // Act
 //        List<ResTicketDTO> result = ticketService.getAllTickets();
 //
+//        // Assert
 //        assertNotNull(result);
-//        assertEquals(1, result.size());
+//        assertFalse(result.isEmpty());
+//        assertEquals("1-0001", result.get(0).getTicket_number());
 //    }
 //
 //    @Test
-//    void getTicketById_Success() {
-//        Long ticketId = 1L;
+//    void testGetAllTickets_Empty() {
+//        // Arrange
+//        when(ticketRepository.findAll()).thenReturn(new ArrayList<>());
+//
+//        // Act
+//        List<ResTicketDTO> result = ticketService.getAllTickets();
+//
+//        // Assert
+//        assertNull(result);
+//    }
+//
+//    @Test
+//    void testGetTicketById_Success() {
+//        // Arrange
 //        Ticket ticket = new Ticket();
 //        ticket.setTicket_number("1-0001");
-//        ticket.setPassenger(new Passenger());
-//        ticket.setFlight(new Flight());
 //
-//        when(ticketRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
+//        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
 //
-//        ResTicketDTO result = ticketService.getTicketById(ticketId);
+//        // Act
+//        ResTicketDTO result = ticketService.getTicketById(1L);
 //
+//        // Assert
 //        assertNotNull(result);
 //        assertEquals("1-0001", result.getTicket_number());
 //    }
 //
 //    @Test
-//    void getTicketById_NotFound() {
-//        Long ticketId = 1L;
-//        when(ticketRepository.findById(ticketId)).thenReturn(Optional.empty());
+//    void testGetTicketById_Failure() {
+//        // Arrange
+//        when(ticketRepository.findById(1L)).thenReturn(Optional.empty());
 //
-//        ResTicketDTO result = ticketService.getTicketById(ticketId);
+//        // Act
+//        ResTicketDTO result = ticketService.getTicketById(1L);
 //
+//        // Assert
 //        assertNull(result);
 //    }
 //}
