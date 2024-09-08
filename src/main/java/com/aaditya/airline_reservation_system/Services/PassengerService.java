@@ -9,6 +9,7 @@ import com.aaditya.airline_reservation_system.Enums.RoleEnum;
 import com.aaditya.airline_reservation_system.Repository.PassengerRepository;
 import com.aaditya.airline_reservation_system.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,11 +23,13 @@ public class PassengerService {
     PassengerRepository passengerRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
     public ResponseDTO addNewPassenger(ReqUserDTO reqUserDTO) {
         try{
             User user = new User();
             user.setUsername(reqUserDTO.getUsername());
-
+            user.setPassword(passwordEncoder.encode(reqUserDTO.getPassword()));
             user.setRole(RoleEnum.PASSENGER);
             userRepository.save(user);
             Passenger passenger = new Passenger();
@@ -102,6 +105,7 @@ public class PassengerService {
             user.setId(passenger.getUser().getId());
             user.setUsername(reqUserDTO.getUsername());
             user.setRole(passenger.getUser().getRole());
+            user.setPassword(reqUserDTO.getPassword());
 
             userRepository.save(user);
             Passenger updatedPassenger = new Passenger();

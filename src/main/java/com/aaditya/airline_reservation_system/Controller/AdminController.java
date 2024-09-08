@@ -28,7 +28,7 @@ public class AdminController {
     }
     @GetMapping
     ResponseEntity<Object> getAllAdminDetails() throws Exception {
-        List<ResAdminDTO> adminDTO =adminService.getAllAdminDetails();
+        List<ResAdminDTO> adminDTO = adminService.getAllAdminDetails();
         if(adminDTO.isEmpty()){
             return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new ResponseDTO("Something Went Wrong"));
         }

@@ -62,7 +62,7 @@ public class PassengerServiceTest {
         ResponseDTO responseDTO = passengerService.addNewPassenger(reqUserDTO);
 
         assertNotNull(responseDTO);
-        assertEquals("New Admin Added Successfully.", responseDTO.getMessage());
+        assertEquals("New Passenger Added Successfully.", responseDTO.getMessage());
     }
 
     @Test
@@ -101,7 +101,7 @@ public class PassengerServiceTest {
 
         List<ResPassengerDTO> responseList = passengerService.getAllPassengerDetails();
 
-        assertNull(responseList);
+        assertTrue(responseList.isEmpty());
     }
 
     @Test
@@ -121,6 +121,7 @@ public class PassengerServiceTest {
         assertNotNull(responseDTO);
         assertEquals("john_doe", responseDTO.getUsername());
         assertEquals("john@example.com", responseDTO.getEmail());
+        assertEquals("1234567890", responseDTO.getPhone());
     }
 
     @Test
